@@ -17,6 +17,6 @@ jobs:
               --region ${AWS_DEFAULT_REGION}
 # Sequential workflow
 workflows:
-  my_workflow:
+  my_aws_workflows:
     jobs:
       - create_infrastructure
