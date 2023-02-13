@@ -19,6 +19,7 @@ jobs:
       - image: alpine:latest
     steps:
       - run: apk add --update curl
+      - destroy_environment
       - run:
           name: smoke test
           command: |
@@ -30,7 +31,6 @@ jobs:
             else
               return 1
             fi
-      - destroy_environment
   create_infrastructure:
     executor: aws-cli/default
     steps:
