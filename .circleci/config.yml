@@ -1,39 +1,20 @@
 version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@1.4.0
 
 jobs:
-  create_infrastructure: 
-    docker:
-      - image: amazon/aws-cli
-    parameters:
-      aws-access-key-id:
-        default: AWS_ACCESS_KEY_ID
-        description: |
-          AWS access key id for IAM role. Set this to the name of
-          the environment variable you will use to hold this
-          value, i.e. AWS_ACCESS_KEY.
-        type: env_var_name
-      aws-region:
-        default: AWS_DEFAULT_REGION
-        description: |
-          Env var of AWS region to operate in
-          (defaults to AWS_DEFAULT_REGION)
-        type: env_var_name
-      aws-secret-access-key:
-        default: AWS_SECRET_ACCESS_KEY
-        description: |
-          AWS secret key for IAM role. Set this to the name of
-          the environment variable you will use to hold this
-          value, i.e. AWS_SECRET_ACCESS_KEY.
-        type: env_var_name
+  create_infrastructure:
+    executor: aws-cli/default
     steps:
       - checkout
+      - aws-cli/setup
       - run:
           name: Create Cloudformation Stack
           command: |
             aws cloudformation deploy \
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-              --region us-east-1
+              --region ${AWS_DEFAULT_REGION}
 # Sequential workflow
 workflows:
   my_workflow:
