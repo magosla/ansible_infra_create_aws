@@ -1,0 +1,8 @@
+---
+- name: Configure and run AWS with CI/CD
+  hosts: all
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - setup

@@ -2,6 +2,17 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@1.4.0
 
+commands:
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+          # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+          #when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+
 jobs:
   create_infrastructure:
     executor: aws-cli/default
@@ -15,8 +26,31 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region ${AWS_DEFAULT_REGION}
+            
+  # Exercise: Config and Deployment
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["7c:73:68:be:eb:fd:e5:0f:1c:82:18:84:09:3c:62:08"] 
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: |
+            ansible-playbook -i inventory main.yml
 # Sequential workflow
 workflows:
   my_aws_workflows:
     jobs:
       - create_infrastructure
+      - configure_infrastructure:
+         requires:
+           - create_infrastructure
+      - destroy_environment:
+          when: on_fail
