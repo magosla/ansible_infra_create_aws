@@ -75,7 +75,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudfront.yml \
               --stack-name << pipeline.parameters.cloudfront_stack_name >> \
-              --parameter-overrides PipelineID=<<pipeline.parameters.bucket_name>> \ # Name of the S3 bucket you created manually.
+              --parameter-overrides PipelineID=<<pipeline.parameters.bucket_name>> \
               --tags project=udapeople &
 
       - destroy_environment
