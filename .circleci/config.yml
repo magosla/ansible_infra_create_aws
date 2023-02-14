@@ -67,6 +67,7 @@ jobs:
               return 1
             fi
 
+
   update_ansible_inventory:
     executor: aws-cli/default
     steps:
