@@ -83,6 +83,10 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region ${AWS_DEFAULT_REGION}
+      - run:
+          name: Output inventory data
+          command: |
+            pwd ; ls -al ; uname ; cat inventory
 
       - destroy_environment
       
