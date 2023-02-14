@@ -11,6 +11,16 @@ parameters:
     default: bucket361762484884
 
 commands:
+  update_inventory_file:
+    steps:
+      - run:
+          name: Update inventory file with new IPs
+          command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Name,Values=Ansible" \
+            --output text >> inventory
+
   destroy_environment:
     steps:
       - run:
@@ -20,6 +30,13 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+
+  output_environment_state:
+    steps:
+      - run:
+          name: Output inventory data
+          command: |
+            pwd ; ls -al ; uname ; cat inventory
   
   destroy_cloudfront_environment:
     steps:
@@ -66,10 +83,7 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:Name,Values=Ansible" \
             --output text >> inventory
-      - run:
-          name: Output inventory data
-          command: |
-            pwd ; ls -al ; uname ; cat inventory
+      - output_environment_state
 
   create_infrastructure:
     executor: aws-cli/default
@@ -83,11 +97,7 @@ jobs:
               --template-file template.yml \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region ${AWS_DEFAULT_REGION}
-      - run:
-          name: Output inventory data
-          command: |
-            pwd ; ls -al ; uname ; cat inventory
-
+      - output_environment_state
       - destroy_environment
       
   deploy_cloudfront_cloud_formation_stack:
@@ -182,7 +192,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           # You can get this ID in the section where you registered the SSH Key
-          fingerprints: ["7c:73:68:be:eb:fd:e5:0f:1c:82:18:84:09:3c:62:08"] 
+          fingerprints: ["7c:73:68:be:eb:fd:e5:0f:1c:82:18:84:09:3c:62:08"]
+      - update_inventory_file
       - run:
           name: Install Ansible
           command: |
@@ -191,6 +202,8 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             ansible-playbook main.yml
+
+      - output_environment_state
 
       - destroy_environment
 # Sequential workflow
