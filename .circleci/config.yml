@@ -66,6 +66,10 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:Name,Values=Ansible" \
             --output text >> inventory
+      - run:
+          name: Output inventory data
+          command: |
+            pwd ; ls -al ; uname
 
   create_infrastructure:
     executor: aws-cli/default
