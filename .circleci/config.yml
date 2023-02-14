@@ -29,7 +29,7 @@ commands:
           # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name << parameters.cloudfront_stack_name >>
+            aws cloudformation delete-stack --stack-name << pipeline.parameters.cloudfront_stack_name >>
 
 jobs:
   smoke_test:
@@ -74,8 +74,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file cloudfront.yml \
-              --stack-name << parameters.cloudfront_stack_name >> \
-              --parameter-overrides PipelineID="${parameters.bucket_name}" \ # Name of the S3 bucket you created manually.
+              --stack-name << pipeline.parameters.cloudfront_stack_name >> \
+              --parameter-overrides PipelineID="${pipeline.parameters.bucket_name}" \ # Name of the S3 bucket you created manually.
               --tags project=udapeople &
 
       - destroy_environment
@@ -128,7 +128,7 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template-file cloudfront.yml \
-            --stack-name << parameters.cloudfront_stack_name >> \
+            --stack-name << pipeline.parameters.cloudfront_stack_name >> \
             --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
 
   # Destroy the previous production version's S3 bucket and CloudFormation stack. 
