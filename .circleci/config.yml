@@ -84,10 +84,10 @@ jobs:
   # Executes the bucket.yml - Deploy an S3 bucket, and interface with that bucket to synchronize the files between local and the bucket.
   # Note that the `--parameter-overrides` let you specify a value that override parameter value in the bucket.yml template file.
   create_and_deploy_front_end:
-    docker:
-      - image: amazon/aws-cli
+    executor: aws-cli/default
     steps:
       - checkout
+      - aws-cli/setup
       - run:
           name: Execute bucket.yml - Create Cloudformation Stack
           command: |
