@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Output inventory data
           command: |
-            pwd ; ls -al ; uname
+            pwd ; ls -al ; uname ; cat inventory
 
   create_infrastructure:
     executor: aws-cli/default
