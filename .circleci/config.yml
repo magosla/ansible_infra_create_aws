@@ -49,6 +49,24 @@ jobs:
             else
               return 1
             fi
+
+  update_ansible_inventory:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup
+      - run:
+          name: Add inventory header
+          command: |
+            echo "[all]" > inventory
+      - run:
+          name: Fetch instance IP address
+          command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Name,Values=Ansible" \
+            --output textt >> inventory
+
   create_infrastructure:
     executor: aws-cli/default
     steps:
@@ -171,19 +189,26 @@ jobs:
 workflows:
   my_aws_workflows:
     jobs:
-      - create_infrastructure
+      - update_ansible_inventory
+      - create_infrastructure:
+          requires:
+            - update_ansible_inventory
       - configure_infrastructure:
          requires:
            - create_infrastructure
-      - deploy_cloudfront_cloud_formation_stack
-      - create_and_deploy_front_end
+      - deploy_cloudfront_cloud_formation_stack:
+          requires:
+            - update_ansible_inventory
+      - create_and_deploy_front_end:
+          requires:
+            - deploy_cloudfront_cloud_formation_stack
       - get_last_deployment_id:
           requires:
             - create_and_deploy_front_end
-            - deploy_cloudfront_cloud_formation_stack
       - promote_to_production:
           requires:
             - get_last_deployment_id
+            - configure_infrastructure
       - clean_up_old_front_end:
           requires:
             - promote_to_production
