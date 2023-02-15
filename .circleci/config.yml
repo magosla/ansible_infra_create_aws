@@ -203,14 +203,12 @@ jobs:
           # You can get this ID in the section where you registered the SSH Key
           fingerprints: ["7c:73:68:be:eb:fd:e5:0f:1c:82:18:84:09:3c:62:08"]
       - update_inventory_file
-      - run: 
-          name: get os info
-          command: |
-            uname -r; cat /etc/os-release 
       - run:
           name: Install Ansible
           command: |
-            yum install -y ansible
+            yum update -y && \
+            amazon-linux-extras install ansible2 -y && \
+            ansible --version
       - run:
           name: Run Playbook and Configure server
           command: |
