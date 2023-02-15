@@ -204,9 +204,9 @@ jobs:
           fingerprints: ["7c:73:68:be:eb:fd:e5:0f:1c:82:18:84:09:3c:62:08"]
       - update_inventory_file
       - run: 
-          name: Install RPM
+          name: get os info
           command: |
-            subscription-manager repos --enable rhel-7-server-ansible-2.6-rpms
+            uname -r; cat /etc/os-release 
       - run:
           name: Install Ansible
           command: |
