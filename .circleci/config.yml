@@ -100,7 +100,7 @@ jobs:
               --region ${AWS_DEFAULT_REGION}
 
       - run:
-          name: Debug failed
+          name: Debug failed aws call
           command: |
             aws cloudformation describe-stack-events \
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
